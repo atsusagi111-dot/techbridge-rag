@@ -1,69 +1,55 @@
-import Image from "next/image";
+"use client";
+
+import { useActionState } from "react";
+import { askQuestion } from "./actions.js";
 import styles from "./page.module.css";
 
+const initialState = { question: "", answer: null, citations: [], error: null };
+
 export default function Home() {
+  const [state, formAction, pending] = useActionState(askQuestion, initialState);
+
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      <div className={styles.card}>
+        <p className={styles.eyebrow}>テックブリッジ</p>
+        <h1 className={styles.title}>社内文書アシスタント</h1>
+        <p className={styles.subtitle}>
+          就業規則・経費精算・セキュリティ規程などについて質問すると、根拠となる文書とページ番号を示して回答します。
+        </p>
+
+        <form action={formAction} className={styles.form}>
+          <textarea
+            name="question"
+            rows={3}
+            placeholder="例: 経費精算の申請期限はいつですか？"
+            className={styles.textarea}
+            defaultValue={state.question}
+            required
+          />
+          <button type="submit" disabled={pending} className={styles.button}>
+            {pending ? "検索中…" : "質問する"}
+          </button>
+        </form>
+
+        {state.error && <p className={styles.error}>{state.error}</p>}
+
+        {state.answer && (
+          <div className={styles.answerBox}>
+            <p className={styles.answerLabel}>回答</p>
+            <p className={styles.answerText}>{state.answer}</p>
+            {state.citations.length > 0 && (
+              <div className={styles.citationList}>
+                {state.citations.map((c, i) => (
+                  <span key={i} className={styles.citationBadge}>
+                    {c.display_name} p.{c.page_number}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
