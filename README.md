@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Live
+
+- Web: https://techbridge-rag.vercel.app
+- Slack: `@RAGtest` にメンションして質問すると、社内文書を根拠に回答します。
+
 ## Getting Started
 
 First, run the development server:
