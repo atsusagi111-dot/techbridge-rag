@@ -2,7 +2,6 @@
 // Run with:  node --env-file=.env.local scripts/ingest.js
 
 import { readFile, readdir } from "node:fs/promises";
-import path from "node:path";
 import { extractText, getDocumentProxy } from "unpdf";
 import { openai, EMBEDDING_MODEL } from "../lib/openai.js";
 import { supabaseAdmin } from "../lib/supabaseServer.js";

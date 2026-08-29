@@ -16,11 +16,7 @@ export async function askQuestion(prevState, formData) {
 
   try {
     const { answer, citations } = await answerQuestion(question);
-    // answerQuestion() already appends a "（出典: ...）" suffix meant for
-    // plain-text Slack replies; strip it here so the UI can render citations
-    // as separate badges instead of duplicating them inline.
-    const displayAnswer = answer.replace(/(?:\s*（出典:.*?）)$/, "").trim();
-    return { question, answer: displayAnswer, citations, error: null };
+    return { question, answer, citations, error: null };
   } catch (err) {
     console.error("askQuestion failed:", err);
     return {

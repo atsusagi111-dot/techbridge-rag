@@ -1,6 +1,6 @@
 import { NextResponse, after } from "next/server";
 import { verifySlackSignature, slackClient } from "@/lib/slack.js";
-import { answerQuestion } from "@/lib/rag.js";
+import { answerQuestion, formatCitationText } from "@/lib/rag.js";
 
 export const maxDuration = 30;
 
@@ -27,8 +27,9 @@ export async function POST(request) {
     after(async () => {
       try {
         const question = text.replace(/<@[^>]+>\s*/, "").trim();
-        const { answer } = await answerQuestion(question);
-        await slackClient.chat.postMessage({ channel, thread_ts: ts, text: answer });
+        const { answer, citations } = await answerQuestion(question);
+        const replyText = `${answer}${formatCitationText(citations)}`;
+        await slackClient.chat.postMessage({ channel, thread_ts: ts, text: replyText });
       } catch (err) {
         console.error("Slack app_mention handling failed:", err);
         await slackClient.chat
