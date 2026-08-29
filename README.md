@@ -1,9 +1,43 @@
-これは [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app) で作成された [Next.js](https://nextjs.org) プロジェクトです。
+# テックブリッジ 社内文書アシスタント（RAG）
+
+就業規則・経費精算・セキュリティ規程などの社内PDFを根拠に、Web画面またはSlackでの質問に回答するQAボットです。回答には出典（文書名・ページ番号）を添え、根拠となるPDFの該当ページに直接ジャンプできます。
 
 ## 公開URL
 
 - Web: https://techbridge-rag.vercel.app
 - Slack: `@RAGtest` にメンションして質問すると、社内文書を根拠に回答します。
+
+## 概要
+
+- 対象文書: `reference/` 配下の就業規則・経費精算マニュアル・情報セキュリティ規程・リモートワーク規程・ITツールガイド（Markdown原本 + PDF）
+- 文書に根拠がない質問には「該当なし」と回答し、憶測で答えない設計
+- 回答には出典バッジ（例: `就業規則.pdf p.1`）を表示し、クリックで `public/docs/` 配下のPDFの該当ページを新規タブで開ける
+
+## アーキテクチャ
+
+```
+[reference/*.md + *.pdf]
+        │  scripts/ingest.js（セクション分割 → OpenAI Embeddings → ページ番号をPDFの実テキストと突き合わせ）
+        ▼
+[Supabase Postgres + pgvector]  documents / chunks テーブル、match_chunks() で類似検索
+        ▲
+        │  lib/rag.js: answerQuestion()
+        │    1. 質問文をOpenAI Embeddingsでベクトル化
+        │    2. match_chunks RPCで類似チャンクを検索（閾値未満は「該当なし」）
+        │    3. 抜粋のみを根拠にGPT-4.1(chat.completions)で回答生成
+        │    4. 出典（文書名・ページ番号）を付与して返却
+        │
+   ┌────┴─────────────────┐
+   │                       │
+[Web] app/page.js          [Slack] app/api/slack/events/route.js
+  Server Action(actions.js)  署名検証 → app_mentionに非同期で返信
+  でRSCから直接呼び出し        （lib/slack.js）
+```
+
+- 社外向けAPI: `app/api/ask/route.js`（`x-internal-secret` ヘッダーで認証する内部API）
+- ホスティング: Vercel（Next.js 16 / App Router / Server Actions / Turbopack）
+- データベース: Supabase（Postgres + `pgvector`拡張、`service_role`キーはサーバー専用でRLS有効）
+- LLM: OpenAI `text-embedding-3-small`（埋め込み）/ `gpt-4.1`（回答生成）
 
 ## はじめに
 
