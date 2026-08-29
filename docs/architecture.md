@@ -104,9 +104,20 @@ flowchart LR
 | `/api/slack/events` | Slack署名検証（HMAC-SHA256、`SLACK_SIGNING_SECRET`） | Slackからのリクエストであることのみを検証。タイムスタンプの経年チェックあり（5分）。 |
 | Supabase `documents`/`chunks` | Row Level Security 有効、`anon`キーからは不可 | サーバーは`service_role`キーのみ使用。クライアント（ブラウザ）から直接DBへはアクセス不可。 |
 
-**ギャップ**: 「社内メールドメイン制限」のような利用者単位の認証は、Web UI・PDF配信のいずれにも実装されていません。現状は事実上フルオープンな公開ツールです。社内限定運用が要件であれば、以下いずれかの追加実装が必要です。
-- Vercelの [Vercel Authentication / Trusted IPs](https://vercel.com/docs/security) や、Google Workspace SSO（社内メールドメイン制限）を`middleware.js`で挟む
-- `public/docs/`を認証必須の署名付きURL配信（Supabase Storageの署名URL等）に置き換える
+**ギャップ**: 「社内メールドメイン制限」のような利用者単位の認証は、Web UI・PDF配信のいずれにも実装されていません。現状は事実上フルオープンな公開ツールです。
+
+### 検討した実装案（2026-08-30 時点で見送り・要方針決定）
+
+社内限定運用を本格的に要件化する場合、以下3案を比較検討した。今回はいずれも未実装とし、方針決定待ちとする。
+
+| 案 | 認証強度 | 追加で必要なもの |
+| --- | --- | --- |
+| A. メールドメインの自己申告（Cookie発行のみ） | 低（本人確認なし。他人のメールアドレスを入力すれば通過してしまう） | なし。アプリ内だけで即実装可能。 |
+| B. メールへのワンタイムコード（OTP）送信 | 中〜高（メールを実際に受信できることを確認） | メール送信サービス（例: Resend, SendGrid）の新規契約・APIキー発行 |
+| C. Google Workspaceでのサインイン（OAuth）+ ドメイン制限 | 高（Googleアカウントでの本人認証） | Google Cloud ConsoleでのOAuthアプリ登録（Client ID/Secret発行）。クライアント企業のGoogle Workspace管理者の協力が必要 |
+
+- B・Cはいずれも外部サービスの新規契約・認証情報発行が必要で、クライアント側の準備（メール送信サービスの契約、またはGoogle Workspace管理者によるOAuthアプリ承認）が前提となるため、本セッションでは実装していない。
+- 対応する場合は、`middleware.js`でセッションCookieの有無を検査し、未認証アクセスを`/`と`/docs/*`の両方でブロックする形になる（現状`public/docs/`はNext.jsのmiddlewareを通さない完全な静的配信のため、認証を効かせるには配信方式自体の変更（署名付きURL化等）も合わせて必要）。
 
 ## 5. シークレット・環境変数管理
 
