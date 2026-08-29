@@ -7,6 +7,11 @@
 - Web: https://techbridge-rag.vercel.app
 - Slack: `@RAGtest` にメンションして質問すると、社内文書を根拠に回答します。
 
+## ドキュメント
+
+- [アーキテクチャ図（情シス向け）](./docs/architecture.md)
+- [運用手順書（クライアント向け）](./docs/operations-guide.md)
+
 ## 概要
 
 - 対象文書: `reference/` 配下の就業規則・経費精算マニュアル・情報セキュリティ規程・リモートワーク規程・ITツールガイド（Markdown原本 + PDF）
