@@ -160,6 +160,16 @@
   background: #ffffff;
   border: 1px solid #bfd4ff;
   border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.citationBadge:hover {
+    background: #eef4ff;
+    border-color: #1d4ed8;
+  }
 }
 
 @media (max-width: 480px) {

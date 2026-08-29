@@ -41,9 +41,15 @@ export default function Home() {
             {state.citations.length > 0 && (
               <div className={styles.citationList}>
                 {state.citations.map((c, i) => (
-                  <span key={i} className={styles.citationBadge}>
+                  <a
+                    key={i}
+                    href={`/docs/${c.filename}#page=${c.page_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.citationBadge}
+                  >
                     {c.display_name} p.{c.page_number}
-                  </span>
+                  </a>
                 ))}
               </div>
             )}

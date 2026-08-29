@@ -43,6 +43,7 @@ returns table (
   section_heading text,
   page_number int,
   display_name text,
+  filename text,
   similarity float
 )
 language sql
@@ -55,6 +56,7 @@ as $$
     chunks.section_heading,
     chunks.page_number,
     documents.display_name,
+    documents.filename,
     1 - (chunks.embedding <=> query_embedding) as similarity
   from chunks
   join documents on documents.id = chunks.document_id
